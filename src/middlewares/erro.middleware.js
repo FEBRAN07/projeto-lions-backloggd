@@ -4,6 +4,9 @@ function erroMiddleware(error, req, res, next) {
   // Erros de validação do Mongoose, como campo obrigatório ou email inválido.
   if (error.name === "ValidationError") {
     // Juntamos todas as mensagens de validação em uma resposta só.
+    // Object.values(error.errors) vira um array com cada erro do Mongoose.
+    // O .map percorre esse array, um erro por vez, e pega apenas erro.message.
+    // No final, mensagens será um novo array contendo só os textos dos erros.
     const mensagens = Object.values(error.errors).map((erro) => erro.message);
     return res.status(400).json({ message: mensagens.join(" ") });
   }

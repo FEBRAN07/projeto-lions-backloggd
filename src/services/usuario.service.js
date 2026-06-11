@@ -49,7 +49,10 @@ async function listarUsuarios() {
   // Busca todos no banco.
   const usuarios = await UsuarioRepository.listarTodos();
 
-  // Limpa cada usuário antes de devolver.
+  // usuarios é um array com vários usuários vindos do banco.
+  // O .map percorre esse array, um usuário por vez.
+  // Para cada usuario, chamamos montarUsuarioSeguro(usuario).
+  // O resultado é um NOVO array, agora com todos os usuários sem campos sensíveis.
   return usuarios.map((usuario) => montarUsuarioSeguro(usuario));
 }
 
@@ -115,9 +118,11 @@ async function removerMinhaConta(idDoUsuario) {
 }
 
 // Exportamos as ações que o controller de usuário pode usar.
-export default {
+const UsuarioService = {
   buscarPerfil,
   listarUsuarios,
   atualizarPerfil,
   removerMinhaConta,
 };
+
+export default UsuarioService;
