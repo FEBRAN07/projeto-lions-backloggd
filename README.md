@@ -38,6 +38,9 @@ API didática em **Node.js**, **Express**, **MongoDB**, **Mongoose**, **JWT** e 
 - [Arquivos extras do projeto](#arquivos-extras-do-projeto)
 - [Deploy no Render](#deploy-no-render)
 - [Checklist de segurança](#checklist-de-segurança)
+- [Padrão de resposta](#padrão-de-resposta)
+- [Boas práticas para evoluir este boilerplate](#boas-práticas-para-evoluir-este-boilerplate)
+- [Licença](#licença)
 
 ---
 
@@ -176,6 +179,7 @@ Isso acontece porque o `package.json` contém:
 │       └── criarErro.js
 ├── .env.example
 ├── .gitignore
+├── LICENSE
 ├── package.json
 ├── render.yaml
 ├── requests.http
@@ -231,8 +235,8 @@ Essa separação deixa o projeto mais fácil de testar, manter e evoluir.
 Exemplo: login em `POST /api/auth/login`.
 
 ```mermaid
-flowchart LR
-  A[Cliente] --> B[app.js]
+flowchart TD
+  A[Cliente] -->|POST /api/auth/login| B[app.js]
   B --> C[auth.routes.js]
   C --> D[validarLogin]
   D --> E[auth.controller.js]
@@ -240,11 +244,13 @@ flowchart LR
   F --> G[usuario.repository.js]
   G --> H[usuario.model.js]
   H --> I[(MongoDB)]
-  I --> G
-  G --> F
-  F --> E
-  E --> J[Resposta JSON]
+  I -.->|usuario + senhaHash| F
+  F -.->|usuario seguro + token JWT| E
+  E -.->|200 + JSON| A
 ```
+
+As setas cheias mostram o caminho da requisição descendo pelas camadas. As setas
+tracejadas mostram a resposta voltando até o cliente.
 
 Passo a passo:
 
@@ -306,14 +312,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  return res.status(200).json({
-    message: "Boilerplate API MVC está rodando.",
-    rotas: {
-      cadastro: "POST /api/auth/cadastro",
-      login: "POST /api/auth/login",
-      perfil: "GET /api/usuarios/perfil",
-    },
-  });
+  return res.status(200).json({ message: "Boilerplate API MVC está rodando." });
 });
 
 app.use("/api/auth", authRoutes);
@@ -599,6 +598,12 @@ async function atualizarPerfil(idDoUsuario, dados = {}) {
   }
 
   const usuarioAtualizado = await UsuarioRepository.atualizarPorId(idDoUsuario, dadosAtualizados);
+
+  if (!usuarioAtualizado) {
+    throw criarErro("Usuário não encontrado.", 404);
+  }
+
+  return montarUsuarioSeguro(usuarioAtualizado);
 }
 ```
 
@@ -646,8 +651,8 @@ Routes definem o caminho da API.
 Em `auth.routes.js`:
 
 ```js
-router.post("/cadastro", validarCadastro, AuthController.cadastrar);
-router.post("/login", validarLogin, AuthController.login);
+router.post("/cadastro", validarCampos.validarCadastro, AuthController.cadastrar);
+router.post("/login", validarCampos.validarLogin, AuthController.login);
 ```
 
 Cada rota faz duas coisas, na ordem:
@@ -675,16 +680,24 @@ Middlewares são funções que ficam no meio do caminho da requisição.
 
 #### `validarCampos.middleware.js`
 
-Exporta duas funções de middleware, uma para cada rota de autenticação:
+Define duas funções de middleware, uma para cada rota de autenticação, e as
+exporta juntas em um objeto:
 
 ```js
-export function validarCadastro(req, res, next) {
+function validarCadastro(req, res, next) {
   const { nome, email, senha } = req.body;
   if (!nome)  return next(criarErro("O campo 'nome' é obrigatório.", 400));
   if (!email) return next(criarErro("O campo 'email' é obrigatório.", 400));
   if (!senha) return next(criarErro("O campo 'senha' é obrigatório.", 400));
   return next();
 }
+
+const validarCampos = {
+  validarCadastro,
+  validarLogin,
+};
+
+export default validarCampos;
 ```
 
 Cada função confere se o body trouxe os campos obrigatórios antes de a
@@ -1217,6 +1230,7 @@ app.use("/api/produtos", produtoRoutes);
 | `requests.http` | Permite testar endpoints pelo VS Code |
 | `render.yaml` | Configura o deploy da API no Render |
 | `README.md` | Documentação principal do repositório |
+| `LICENSE` | Texto completo da licença MIT do projeto |
 
 ### `package.json`
 
@@ -1378,7 +1392,7 @@ Erro:
 
 ## Licença
 
-Este projeto está sob licença ISC, conforme definido no `package.json`.
+Este projeto está sob licença MIT, conforme definido no `package.json` e no arquivo `LICENSE`.
 
 ---
 
