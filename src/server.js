@@ -8,7 +8,7 @@ import app from "./app.js";
 import conectarBanco from "./config/database.js";
 
 // Carrega o arquivo .env.
-dotenv.config();
+dotenv.config({path: "../.env"});
 
 // No Render, a porta vem de process.env.PORT.
 // No computador local, se não houver PORT, usamos 3000.

@@ -23,19 +23,19 @@ const router = Router();
 //    só algumas rotas do arquivo precisam de autenticação.
 //
 // Abaixo usamos a forma global, pois todas as rotas exigem token JWT.
-router.use(autenticar);
+// router.use(autenticar)
 
 // GET /api/usuarios/perfil
 // Retorna os dados do usuário logado.
-router.get("/perfil", UsuarioController.perfil);
+router.get("/perfil", autenticar, UsuarioController.perfil);
 
 // PATCH /api/usuarios/perfil
 // Atualiza nome e/ou senha do usuário logado.
-router.patch("/perfil", UsuarioController.atualizarPerfil);
+router.patch("/perfil", autenticar, UsuarioController.atualizarPerfil);
 
 // DELETE /api/usuarios/perfil
 // Remove a conta do usuário logado.
-router.delete("/perfil", UsuarioController.removerMinhaConta);
+router.delete("/perfil", autenticar, UsuarioController.removerMinhaConta);
 
 // Exportamos o roteador para o app.js.
 export default router;

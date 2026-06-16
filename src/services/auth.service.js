@@ -70,11 +70,6 @@ function gerarToken(usuario) {
 
 // Cadastra um novo usuário.
 async function cadastrar({ nome, email, senha }) {
-  // Validação básica para garantir que os campos chegaram no body.
-  if (!nome || !email || !senha) {
-    throw criarErro("Nome, email e senha são obrigatórios.", 400);
-  }
-
   // Valida a senha antes de gerar o hash.
   validarSenha(senha);
 
@@ -115,11 +110,6 @@ async function cadastrar({ nome, email, senha }) {
 
 // Faz login de um usuário já cadastrado.
 async function login({ email, senha }) {
-  // Login precisa de email e senha.
-  if (!email || !senha) {
-    throw criarErro("Email e senha são obrigatórios.", 400);
-  }
-
   // Buscamos o usuário pelo email incluindo a senhaHash.
   // Sem o segundo argumento true, senhaHash não viria por causa do select: false.
   const usuario = await UsuarioRepository.buscarPorEmail(email, true);
