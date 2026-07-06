@@ -60,7 +60,7 @@ Ele já entrega:
 | Rotas protegidas | Middleware que valida `Authorization: Bearer TOKEN` |
 | Segurança de senha | Uso de `bcryptjs` para salvar apenas `senhaHash` |
 | Tratamento de erros | Middleware central para respostas padronizadas |
-| Testes manuais | Arquivo `requests.http` para usar com a extensão REST Client |
+| Testes manuais | Postman Desktop, Web ou extensão do VS Code |
 | Deploy | `render.yaml` pronto para publicar no Render |
 
 ---
@@ -110,7 +110,7 @@ http://localhost:3000
 
 ### 5. Teste as rotas
 
-Abra o arquivo `requests.http` no VS Code e use a extensão **REST Client** para testar:
+Use o **Postman** para testar a API. Pode ser o aplicativo desktop, a versão web ou a extensão do VS Code.
 
 ```txt
 POST /api/auth/cadastro
@@ -182,7 +182,6 @@ Isso acontece porque o `package.json` contém:
 ├── LICENSE
 ├── package.json
 ├── render.yaml
-├── requests.http
 └── README.md
 ```
 
@@ -1025,35 +1024,101 @@ Boas práticas:
 | `PATCH` | `/api/usuarios/perfil` | Sim | `UsuarioController.atualizarPerfil` | Atualiza nome e/ou senha |
 | `DELETE` | `/api/usuarios/perfil` | Sim | `UsuarioController.removerMinhaConta` | Remove a própria conta |
 
-### Testando com `requests.http`
+### Testando com Postman
 
-O arquivo `requests.http` já possui exemplos prontos.
+Você pode usar Postman Desktop, Postman Web ou a extensão do Postman no VS Code.
 
-```http
-@baseUrl = http://localhost:3000
-@token = cole_o_token_aqui
+Crie uma variável de ambiente ou de coleção:
 
+```txt
+baseUrl = http://localhost:3000
+```
+
+#### 1. Cadastro
+
+Crie uma requisição:
+
+```txt
+POST {{baseUrl}}/api/auth/cadastro
+```
+
+Na aba **Body**, selecione **raw** e **JSON**:
+
+```json
+{
+  "nome": "Maria Silva",
+  "email": "maria@email.com",
+  "senha": "123456"
+}
+```
+
+#### 2. Login
+
+Crie uma requisição:
+
+```txt
 POST {{baseUrl}}/api/auth/login
-Content-Type: application/json
+```
 
+Na aba **Body**, selecione **raw** e **JSON**:
+
+```json
 {
   "email": "maria@email.com",
   "senha": "123456"
 }
 ```
 
-Depois de fazer login, copie o token para:
+Depois de fazer login, copie o valor de `token` retornado na resposta.
 
-```http
-@token = token_copiado_aqui
+#### 3. Perfil protegido
+
+Crie uma variável chamada `token` e cole o token recebido no login:
+
+```txt
+token = token_copiado_aqui
 ```
 
-E teste uma rota protegida:
+Depois crie a requisição:
 
-```http
+```txt
 GET {{baseUrl}}/api/usuarios/perfil
-Authorization: Bearer {{token}}
 ```
+
+Na aba **Authorization**, escolha:
+
+```txt
+Type: Bearer Token
+Token: {{token}}
+```
+
+#### 4. Atualizar perfil
+
+Crie uma requisição:
+
+```txt
+PATCH {{baseUrl}}/api/usuarios/perfil
+```
+
+Na aba **Authorization**, use **Bearer Token** com `{{token}}`.
+
+Na aba **Body**, selecione **raw** e **JSON**:
+
+```json
+{
+  "nome": "Maria Souza"
+}
+```
+
+#### 5. Remover minha conta
+
+Crie uma requisição:
+
+```txt
+DELETE {{baseUrl}}/api/usuarios/perfil
+```
+
+Na aba **Authorization**, use **Bearer Token** com `{{token}}`.
 
 ---
 
@@ -1209,7 +1274,7 @@ app.use("/api/produtos", produtoRoutes);
 - Criar `controller`.
 - Criar `routes`.
 - Registrar as rotas no `app.js`.
-- Adicionar exemplos no `requests.http`.
+- Adicionar exemplos na coleção do Postman.
 - Atualizar a documentação do projeto.
 
 ---
@@ -1221,7 +1286,6 @@ app.use("/api/produtos", produtoRoutes);
 | `.env.example` | Mostra quais variáveis o projeto precisa |
 | `.gitignore` | Evita enviar arquivos sensíveis ou desnecessários |
 | `package.json` | Define scripts, dependências e metadados |
-| `requests.http` | Permite testar endpoints pelo VS Code |
 | `render.yaml` | Configura o deploy da API no Render |
 | `README.md` | Documentação principal do repositório |
 | `LICENSE` | Texto completo da licença MIT do projeto |
@@ -1319,7 +1383,7 @@ const PORT = process.env.PORT || 3000;
 - Confirme se o MongoDB Atlas permite conexão da aplicação hospedada.
 - Use uma `JWT_SECRET` diferente da usada localmente.
 - Teste `/` depois do deploy para confirmar que a API está online.
-- Teste cadastro e login em produção usando `requests.http` ou outra ferramenta HTTP.
+- Teste cadastro e login em produção usando Postman.
 
 ---
 
@@ -1379,7 +1443,7 @@ Erro:
 - Crie middlewares para regras que se repetem em várias rotas.
 - Retorne sempre JSON em APIs REST.
 - Use status HTTP coerentes: `201`, `200`, `400`, `401`, `404`, `409` e `500`.
-- Atualize `requests.http` sempre que criar uma rota nova.
+- Atualize sua coleção do Postman sempre que criar uma rota nova.
 - Atualize este README sempre que a estrutura mudar.
 
 ---
