@@ -9,27 +9,24 @@ async function criar(dadosDoUsuario) {
   return Usuario.create(dadosDoUsuario);
 }
 
-// Busca um usuário pelo email.
-// O parâmetro "incluirSenha" existe porque a senhaHash normalmente fica escondida.
-// No login precisamos dela para comparar com a senha digitada.
-async function buscarPorEmail(email, incluirSenha = false) {
+// Busca um usuário pelo email sem trazer a senhaHash.
+async function buscarPorEmail(email) {
   // Normalizamos o email para evitar diferenças como "TESTE@email.com"
   // e "teste@email.com".
   // findOne procura o PRIMEIRO documento que bater com o filtro informado.
   // O filtro abaixo quer dizer: encontre um usuário cujo campo email seja igual
   // ao email normalizado.
+  return Usuario.findOne({ email: email.trim().toLowerCase() });
+}
+
+// Busca um usuário pelo email trazendo também a senhaHash.
+// Usamos esta função apenas no login, para comparar a senha digitada.
+async function buscarPorEmailComSenha(email) {
   const query = Usuario.findOne({ email: email.trim().toLowerCase() });
 
-  // Como senhaHash tem select: false no Model, precisamos pedir explicitamente
-  // quando necessário.
-  if (incluirSenha) {
-    // select("+senhaHash") altera a consulta para incluir um campo escondido.
-    // O sinal de + significa: "traga este campo mesmo que ele esteja oculto".
-    query.select("+senhaHash");
-  }
-
-  // Retorna a consulta pronta/executada pelo Mongoose.
-  return query;
+  // select("+senhaHash") altera a consulta para incluir um campo escondido.
+  // O sinal de + significa: "traga este campo mesmo que ele esteja oculto".
+  return query.select("+senhaHash");
 }
 
 // Busca um usuário pelo ID do MongoDB.
@@ -73,6 +70,7 @@ async function deletarPorId(id) {
 const UsuarioRepository = {
   criar,
   buscarPorEmail,
+  buscarPorEmailComSenha,
   buscarPorId,
   listarTodos,
   atualizarPorId,

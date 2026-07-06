@@ -25,11 +25,15 @@ function erroMiddleware(error, req, res, next) {
   }
 
   // Se o erro veio do nosso criarErro, ele terá status.
-  // Se não tiver, assumimos erro interno do servidor.
-  const status = error.status || 500;
+  // Se não tiver, tratamos como erro interno do servidor.
+  let status = error.status;
 
-  // Se não houver mensagem específica, usamos uma mensagem padrão.
-  const message = error.message || "Erro interno do servidor.";
+  if (!status) {
+    status = 500;
+  }
+
+  // Mensagem do erro que será enviada para o cliente.
+  const message = error.message;
 
   // Erros 500 são problemas do servidor, então registramos no terminal.
   if (status >= 500) {

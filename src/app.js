@@ -28,9 +28,7 @@ app.get("/", (req, res) => {
 });
 
 // Todas as rotas de autenticação começam com /api/auth.
-// app.use com caminho monta um grupo de rotas dentro daquele prefixo.
-// Ex.: authRoutes tem "/login", então a URL final vira "/api/auth/login".
-app.use(authRoutes);
+app.use("/api/auth", authRoutes);
 
 // Todas as rotas de usuário começam com /api/usuarios.
 app.use("/api/usuarios", usuarioRoutes);

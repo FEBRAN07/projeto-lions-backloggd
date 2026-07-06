@@ -11,7 +11,7 @@
 # Testa se o servidor está rodando.
 GET {{baseUrl}}/
 
-### Cadastrar usuario
+### Cadastrar usuário
 # Cria um usuário e já retorna um token JWT.
 POST {{baseUrl}}/api/auth/cadastro
 Content-Type: application/json

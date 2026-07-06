@@ -42,24 +42,6 @@ const UsuarioSchema = new mongoose.Schema(
   {
     // timestamps cria automaticamente os campos createdAt e updatedAt.
     timestamps: true,
-
-    // toJSON define como o documento será transformado quando virar JSON.
-    // Aqui removemos campos que não devem aparecer na resposta da API.
-    toJSON: {
-      transform(document, retorno) {
-        // document é o documento original do Mongoose.
-        // retorno é o objeto que será enviado como JSON.
-        // Mesmo se senhaHash aparecer em alguma consulta específica,
-        // removemos antes de enviar a resposta para o cliente.
-        delete retorno.senhaHash;
-
-        // __v é um campo interno do Mongoose. Não precisamos mostrar aos alunos/clientes.
-        delete retorno.__v;
-
-        // Retornamos o objeto já limpo.
-        return retorno;
-      },
-    },
   }
 );
 

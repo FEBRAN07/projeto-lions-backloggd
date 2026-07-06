@@ -412,37 +412,24 @@ Detalhes importantes:
 | `select: false` | Impede que `senhaHash` venha nas consultas por padrão |
 | `timestamps: true` | Cria `createdAt` e `updatedAt` automaticamente |
 
-O Model também remove campos sensíveis quando o usuário vira JSON:
-
-```js
-toJSON: {
-  transform(document, retorno) {
-    delete retorno.senhaHash;
-    delete retorno.__v;
-    return retorno;
-  },
-}
-```
-
-Esse bloco é uma proteção extra para evitar que `senhaHash` apareça em respostas da API.
+Antes de responder para o cliente, os services usam `montarUsuarioSeguro` para remover campos que não devem aparecer na API.
 
 ### `src/repositories/usuario.repository.js`
 
 O Repository é a camada que conversa com o banco.
 
 ```js
-async function buscarPorEmail(email, incluirSenha = false) {
+async function buscarPorEmail(email) {
+  return Usuario.findOne({ email: email.trim().toLowerCase() });
+}
+
+async function buscarPorEmailComSenha(email) {
   const query = Usuario.findOne({ email: email.trim().toLowerCase() });
-
-  if (incluirSenha) {
-    query.select("+senhaHash");
-  }
-
-  return query;
+  return query.select("+senhaHash");
 }
 ```
 
-Esse bloco existe porque no login precisamos comparar a senha digitada com a `senhaHash`. Como o Model usa `select: false`, o repository só inclui `senhaHash` quando o service pedir explicitamente.
+No cadastro usamos `buscarPorEmail`, porque não precisamos da senhaHash. No login usamos `buscarPorEmailComSenha`, porque precisamos comparar a senha digitada com a `senhaHash`.
 
 Outras funções do repository:
 
@@ -552,7 +539,7 @@ Retorna usuário seguro e token JWT
 #### Login com comparação segura
 
 ```js
-const usuario = await UsuarioRepository.buscarPorEmail(email, true);
+const usuario = await UsuarioRepository.buscarPorEmailComSenha(email);
 
 if (!usuario) {
   throw criarErro("Email ou senha incorretos.", 401);
@@ -578,7 +565,11 @@ A mensagem de erro é genérica de propósito: ela não revela se o email existe
 Este service cuida das regras do usuário logado.
 
 ```js
-async function atualizarPerfil(idDoUsuario, dados = {}) {
+async function atualizarPerfil(idDoUsuario, dados) {
+  if (!dados) {
+    throw criarErro("Envie nome e/ou senha para atualizar.", 400);
+  }
+
   const dadosAtualizados = {};
 
   if (dados.nome) {
@@ -665,14 +656,12 @@ Cada rota faz duas coisas, na ordem:
 Em `usuario.routes.js`:
 
 ```js
-router.use(autenticar);
-
-router.get("/perfil", UsuarioController.perfil);
-router.patch("/perfil", UsuarioController.atualizarPerfil);
-router.delete("/perfil", UsuarioController.removerMinhaConta);
+router.get("/perfil", autenticar, UsuarioController.perfil);
+router.patch("/perfil", autenticar, UsuarioController.atualizarPerfil);
+router.delete("/perfil", autenticar, UsuarioController.removerMinhaConta);
 ```
 
-O `router.use(autenticar)` protege todas as rotas declaradas abaixo dele.
+O middleware `autenticar` aparece em cada rota protegida, antes do controller.
 
 ### Middlewares
 
@@ -726,8 +715,13 @@ Esse middleware valida o JWT e adiciona `req.usuario`. Depois disso, controllers
 #### `erro.middleware.js`
 
 ```js
-const status = error.status || 500;
-const message = error.message || "Erro interno do servidor.";
+let status = error.status;
+
+if (!status) {
+  status = 500;
+}
+
+const message = error.message;
 
 return res.status(status).json({ message });
 ```
@@ -737,7 +731,7 @@ Esse middleware centraliza as respostas de erro. Assim os controllers não preci
 ### `src/utils/criarErro.js`
 
 ```js
-function criarErro(message, status = 500) {
+function criarErro(message, status) {
   const error = new Error(message);
   error.status = status;
   return error;
@@ -1335,7 +1329,7 @@ const PORT = process.env.PORT || 3000;
 - Usar `bcrypt.hash` no cadastro e na troca de senha.
 - Usar `bcrypt.compare` no login.
 - Manter `senhaHash` com `select: false`.
-- Remover `senhaHash` no `toJSON`.
+- Remover `senhaHash` antes de responder para o cliente.
 - Usar mensagem genérica em falha de login.
 - Proteger rotas privadas com JWT.
 - Enviar token no formato `Authorization: Bearer TOKEN`.

@@ -58,10 +58,11 @@ async function listarUsuarios() {
 }
 
 // Atualiza o perfil do usuário logado.
-async function atualizarPerfil(idDoUsuario, dados = {}) {
-  // dados = {} é um valor padrão.
-  // Se alguém chamar a função sem enviar dados, ela usa um objeto vazio
-  // e evita erro ao acessar dados.nome ou dados.senha.
+async function atualizarPerfil(idDoUsuario, dados) {
+  // Se nenhum dado foi enviado, não há o que atualizar.
+  if (!dados) {
+    throw criarErro("Envie nome e/ou senha para atualizar.", 400);
+  }
 
   // Montamos um objeto apenas com os campos permitidos.
   // Assim evitamos atualizar campos que o usuário não deveria controlar.

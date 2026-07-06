@@ -111,8 +111,7 @@ async function cadastrar({ nome, email, senha }) {
 // Faz login de um usuário já cadastrado.
 async function login({ email, senha }) {
   // Buscamos o usuário pelo email incluindo a senhaHash.
-  // Sem o segundo argumento true, senhaHash não viria por causa do select: false.
-  const usuario = await UsuarioRepository.buscarPorEmail(email, true);
+  const usuario = await UsuarioRepository.buscarPorEmailComSenha(email);
 
   // Mensagem genérica para não revelar se o email existe ou não.
   if (!usuario) {

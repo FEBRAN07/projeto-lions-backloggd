@@ -8,8 +8,8 @@
 // Repare que ele JÁ tem a assinatura de middleware (req, res, next). Por isso,
 // na rota usamos só o NOME da função, SEM os parênteses:
 //
-//     router.use(autenticar);          // certo: passamos a função
-//     router.use(autenticar());        // errado: aqui chamaríamos cedo demais
+//     router.get("/perfil", autenticar, UsuarioController.perfil);   // certo
+//     router.get("/perfil", autenticar(), UsuarioController.perfil); // errado
 //
 // (Passar a função sem parênteses é o que permite o Express chamá-la, sozinho,
 //  a cada requisição.)

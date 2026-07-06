@@ -13,11 +13,11 @@ const router = Router();
 
 // POST /api/auth/cadastro
 // Primeiro o middleware confere os campos; depois o controller faz o cadastro.
-router.post("/api/auth/cadastro", validarCampos.validarCadastro, AuthController.cadastrar);
+router.post("/cadastro", validarCampos.validarCadastro, AuthController.cadastrar);
 
 // POST /api/auth/login
 // Primeiro o middleware confere email/senha; depois o controller faz o login.
-router.post("/api/auth/login", validarCampos.validarLogin, AuthController.login);
+router.post("/login", validarCampos.validarLogin, AuthController.login);
 
 // Exportamos o roteador para ser usado no app.js.
 export default router;
