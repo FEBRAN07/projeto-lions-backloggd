@@ -23,6 +23,18 @@ const UsuarioSchema = new mongoose.Schema(
             required: [true, "A senhaHash é obrigatória."],
             select: false,
         },
+
+        dataCadastro: {
+            type: Date,
+            default: Date.now,
+            immutable: true,
+        },
+
+        tipo: {
+            type: String,
+            enum: ["usuario", "admin"],
+            default: "usuario",
+        },
     },
     {
         timestamps: true,
