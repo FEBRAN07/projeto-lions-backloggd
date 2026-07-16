@@ -2,6 +2,10 @@
 
 # Boilerplate Lions Dev
 
+(Não vamos escrever o README agora)
+
+Integrantes: Felipe Brandes, Pedro Paulo, Matheus Nadal e Melissa
+
 API didática em **Node.js**, **Express**, **MongoDB**, **Mongoose**, **JWT** e **bcryptjs**, organizada em camadas MVC para servir como base de projetos, aulas e desafios.
 
 <p>
