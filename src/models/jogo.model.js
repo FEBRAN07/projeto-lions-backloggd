@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const jogoSchema = new mongoose.Schema(
     {
+        idIGDB: {
+            type: Number,
+            unique: true,
+            index: true,
+        },
+
         titulo: {
             type: String,
             required: true,
@@ -12,7 +18,7 @@ const jogoSchema = new mongoose.Schema(
             required: true,
         },
 
-        anoLancamento: {
+        dataLancamento: {
             type: String,
             required: true,
         },
@@ -45,3 +51,6 @@ const jogoSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+const Jogo = mongoose.model("Jogo", jogoSchema);
+export default Jogo;
