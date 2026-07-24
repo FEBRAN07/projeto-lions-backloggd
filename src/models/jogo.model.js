@@ -51,6 +51,11 @@ const jogoSchema = new mongoose.Schema(
         capa: {
             type: String,
         },
+
+        quantidadeReviews: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,
