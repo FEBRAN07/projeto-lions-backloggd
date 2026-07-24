@@ -13,13 +13,18 @@ const jogoSchema = new mongoose.Schema(
             required: true,
         },
 
-        estudio: {
-            type: String,
+        desenvolvedor: {
+            type: [String],
+            required: true,
+        },
+
+        publicadoras: {
+            type: [String],
             required: true,
         },
 
         dataLancamento: {
-            type: String,
+            type: Date,
             required: true,
         },
 
